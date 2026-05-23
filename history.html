@@ -19,35 +19,24 @@
 
   </head>
   <body>
-    <form action="" class="form" id="js-form">
-
-      <div class="form-list">
-        <label for="name" class="form-title">Name:</label>
-        <div class="form-field">
-          <input type="text" class="input-field" id="name" name="name">
-        </div>
-      </div>
-
-      <div class="form-list">
-        <label for="work" class="form-title">Work:</label>
-        <div class="form-field">
-          <input type="text" class="input-field" id="work" name="work">
-        </div>
-      </div>
-
-      <div class="form-list">
-        <label for="comment" class="form-title">Comment:</label>
-        <div class="form-field">
-          <textarea class="input-field" id="comment" name="comment"
-          rows="4" cols="50"></textarea>
-        </div>
-      </div>
-
-      <div class="form-button">
-        <button class="button" type="submit">Submit</button>
-      </div>
-    </form>
-
+    <table class="table">
+        <thead class="table-head">
+            <tr>
+                <th>Date</th>
+                <th>name</th>
+                <th>work</th>
+                <th>comment</th>
+            </tr>
+        </thead>
+        <tbody class="table-body" id="js-history">
+            <tr>
+                <td>2026/05/24 22:15</td>
+                <td>澤木</td>
+                <td>Step10コーティング</td>
+                <td>業務日報の作成中</td>
+            </tr>
+        </tbody>
+    </table>
     <div class="history-link">
       <a href="./">Home</a>
       <a href="./history.html">History</a>
