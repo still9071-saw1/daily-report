@@ -466,3 +466,476 @@ DOM表示
 - .env対応
 - Firestore Rules確認
 - GitHub公開準備
+
+# Step10 課題学習メモ 追記（リファクタリング・環境変数・Firestore Rules）
+
+---
+
+# 16. 関数分割（リファクタリング）
+
+## 実施内容
+
+以下の関数を `main.js` から分離。
+
+- fetchHistoryData
+- submitDate
+
+---
+
+## 目的
+
+```txt
+main.js の責務を減らす
+```
+
+```txt
+機能ごとにコード分割する
+```
+
+---
+
+## フォルダ構成イメージ
+
+```txt
+src
+├── main.js
+└── my-modules
+    ├── fetchHistoryData.js
+    └── submitDate.js
+```
+
+---
+
+# 17. export / import の実践利用
+
+## export 側
+
+```js
+export const fetchHistoryData = async () => {
+  ...
+};
+```
+
+---
+
+## import 側
+
+```js
+import { fetchHistoryData } from "./my-modules/fetchHistoryData";
+```
+
+---
+
+## 理解したこと
+
+以前学習した：
+
+```txt
+export
+import
+```
+
+は、
+
+```txt
+コード分割・機能整理
+```
+
+のために使われる。
+
+---
+
+# 18. fetchHistoryData の3引数の意味
+
+## 教材側
+
+```js
+fetchHistoryData(getDocs, collection, db);
+```
+
+---
+
+## 自分側
+
+```js
+fetchHistoryData();
+```
+
+---
+
+## 理解
+
+教材側は：
+
+```txt
+この関数が何を使用しているか
+```
+
+を見えやすくする目的。
+
+---
+
+## 今回つながった内容
+
+関数を別ファイル化すると：
+
+```txt
+fetchHistoryData.js
+```
+
+側には：
+
+```txt
+db
+getDocs
+collection
+```
+
+が存在しない。
+
+そのため、
+
+```txt
+必要なものを引数で受け取る
+```
+
+設計になっていた。
+
+---
+
+# 19. import の配置
+
+## 現状
+
+```js
+const db = getFirestore(app);
+
+import { fetchHistoryData } from "./my-modules/fetchHistoryData";
+```
+
+でも動作した。
+
+---
+
+## 理解
+
+ES Modulesでは：
+
+```txt
+トップレベル
+```
+
+にあれば動作可能。
+
+---
+
+## 実務的には
+
+```txt
+import はファイル上部へまとめる
+```
+
+事が一般的。
+
+---
+
+# 20. .env による環境変数管理
+
+## 作成ファイル
+
+```txt
+.env
+```
+
+---
+
+## 記述内容
+
+```env
+VITE_API_KEY=xxxxx
+VITE_AUTH_DOMAIN=xxxxx
+VITE_PROJECT_ID=xxxxx
+VITE_STORAGE_BUCKET=xxxxx
+VITE_MESSAGING_SENDER_ID=xxxxx
+VITE_APP_ID=xxxxx
+```
+
+---
+
+# 21. Vite の環境変数ルール
+
+## 重要
+
+```txt
+VITE_
+```
+
+接頭辞が必要。
+
+---
+
+## 理由
+
+Viteでは：
+
+```txt
+VITE_ が付いた環境変数のみ
+```
+
+フロント側で利用可能。
+
+---
+
+## 使用方法
+
+```js
+import.meta.env.VITE_API_KEY
+```
+
+---
+
+# 22. 教材の誤記に気づいた
+
+## 教材画像
+
+```env
+APP_I=
+```
+
+となっていた。
+
+---
+
+## 正しくは
+
+```env
+VITE_APP_ID=
+```
+
+---
+
+## 理由
+
+```txt
+VITE_ が無いと Vite が読み込まない
+```
+
+ため。
+
+---
+
+# 23. .gitignore 設定
+
+## 追加内容
+
+```txt
+.env
+```
+
+---
+
+## 理由
+
+```txt
+GitHubへ環境変数を push しない
+```
+
+ため。
+
+---
+
+## 確認
+
+```bash
+git status
+```
+
+で：
+
+```txt
+.env が表示されない
+```
+
+状態を確認。
+
+---
+
+# 24. .env と安全性の理解
+
+## 理解したこと
+
+```txt
+.env = 完全秘密
+```
+
+ではない。
+
+---
+
+## 理由
+
+今回のFirebase設定は：
+
+```txt
+フロント側で利用される
+```
+
+ため、ブラウザから確認可能。
+
+---
+
+## 本当に重要なもの
+
+```txt
+Firestore Rules
+認証
+権限制御
+```
+
+---
+
+# 25. Firestore Rules の修正
+
+## 初期状態
+
+```js
+allow read, write: if request.time < timestamp.date(...);
+```
+
+---
+
+## 問題点
+
+```txt
+誰でも read / write 可能
+```
+
+状態。
+
+---
+
+# 26. 修正後 Rules
+
+```js
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /reports/{document} {
+      allow read: if true;
+      allow create: if true;
+      allow update, delete: if false;
+    }
+
+  }
+}
+```
+
+---
+
+# 27. Rules 修正後の状態
+
+## 許可
+
+```txt
+read
+create
+```
+
+---
+
+## 禁止
+
+```txt
+update
+delete
+```
+
+---
+
+## 制限範囲
+
+```txt
+reports コレクションのみ
+```
+
+---
+
+# 28. 現時点での安全性理解
+
+## 以前
+
+```txt
+全コレクション
+全データ
+read/write全許可
+```
+
+---
+
+## 現在
+
+```txt
+reports のみ
+read/create のみ
+```
+
+へ制限。
+
+---
+
+# 29. 現時点の構成理解
+
+## アプリ構成
+
+```txt
+HTML
+↓
+JavaScript
+↓
+Firestore
+↓
+DOM表示
+```
+
+---
+
+## 現在できること
+
+```txt
+Firestore取得
+Firestore保存
+table表示
+モジュール分割
+環境変数管理
+Rules制御
+```
+
+---
+
+# 30. 現在の理解
+
+## 重要だった点
+
+```txt
+「動くだけ」
+```
+
+ではなく、
+
+```txt
+なぜそうなるか
+```
+
+を考えながら進めた。
+
+---
+
+# 次回予定
+
+- Firebase Hosting
+- deploy
+- GitHub公開確認
+- Rules追加理解
+- firebase.js 分離検討
