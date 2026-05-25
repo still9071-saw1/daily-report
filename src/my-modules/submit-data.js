@@ -11,6 +11,7 @@ export const submitDate = async (e, addDoc, collection, db) => {
             comment:formData.get("comment")
         });
         console.log("Document written with ID: ", docRef.id);
+        e.target.reset();
     } catch (e) {
         console.error("Error adding document: ", e);
     }

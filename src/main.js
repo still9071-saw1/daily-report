@@ -26,5 +26,5 @@ if(document.getElementById("js-history")) {
 
 // Cloud FireStoreにデータを送信する
 if(document.getElementById("js-form")) {
-    document.getElementById("js-form").addEventListener("submit", (e) => submitDate(e));
+    document.getElementById("js-form").addEventListener("submit", (e) => submitDate(e, addDoc, collection, db));
 };

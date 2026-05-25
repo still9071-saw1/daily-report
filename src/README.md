@@ -939,3 +939,499 @@ Rules制御
 - GitHub公開確認
 - Rules追加理解
 - firebase.js 分離検討
+
+# Step10 課題学習メモ 追記（Firebase Hosting・build・deploy）
+
+---
+
+# 31. Firebase Hosting 初期化
+
+## 実行コマンド
+
+```bash
+firebase init hosting
+```
+
+---
+
+## 実施内容
+
+### Hosting 選択
+
+```txt
+Hosting: Configure files for Firebase Hosting
+```
+
+を選択。
+
+---
+
+## 既存Firebase Project選択
+
+```txt
+daily-report-726c2
+```
+
+を選択。
+
+---
+
+# 32. Firebase Hosting 設定
+
+## public directory
+
+```txt
+dist
+```
+
+を指定。
+
+---
+
+## 理由
+
+Viteでは：
+
+```bash
+npm run build
+```
+
+実行後、
+
+```txt
+dist
+```
+
+へ本番用ファイルが生成されるため。
+
+---
+
+# 33. firebase.json の理解
+
+## 自動生成された内容
+
+```json
+{
+  "hosting": {
+    "public": "dist",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ]
+  }
+}
+```
+
+---
+
+## 理解したこと
+
+```txt
+dist フォルダを Hosting 公開対象にする
+```
+
+設定。
+
+---
+
+# 34. build の理解
+
+## 実行コマンド
+
+```bash
+npm run build
+```
+
+---
+
+## build の意味
+
+```txt
+開発用コード
+↓
+本番公開用へ変換
+```
+
+---
+
+## build後の生成物
+
+```txt
+dist
+├── assets
+├── favicon.svg
+├── history.html
+├── icons.svg
+└── index.html
+```
+
+---
+
+# 35. vite.config.js の追加
+
+## 作成内容
+
+```js
+import { resolve } from "path";
+import { defineConfig } from "vite";
+
+export default defineConfig({
+  build: {
+    rolldownOptions: {
+      input: {
+        main: resolve(__dirname, "index.html"),
+        history: resolve(__dirname, "history.html"),
+      },
+    },
+  },
+});
+```
+
+---
+
+# 36. vite.config.js の役割
+
+## 理由
+
+今回の構成は：
+
+```txt
+index.html
+history.html
+```
+
+の複数ページ構成。
+
+---
+
+## 理解したこと
+
+Viteは通常：
+
+```txt
+index.html 前提
+```
+
+で build する。
+
+そのため：
+
+```txt
+history.html
+```
+
+も build対象へ明示する必要がある。
+
+---
+
+## input 設定の意味
+
+```js
+input: {
+  main: resolve(__dirname, "index.html"),
+  history: resolve(__dirname, "history.html"),
+}
+```
+
+↓
+
+```txt
+index.html を build
+history.html を build
+```
+
+という指定。
+
+---
+
+# 37. resolve() の理解
+
+## 使用箇所
+
+```js
+resolve(__dirname, "history.html")
+```
+
+---
+
+## 理解
+
+```txt
+現在フォルダからの絶対パス化
+```
+
+を行う。
+
+---
+
+# 38. Firebase deploy
+
+## 実行コマンド
+
+```bash
+firebase deploy
+```
+
+---
+
+## 実施内容
+
+```txt
+dist の内容を Firebase Hosting へ公開
+```
+
+した。
+
+---
+
+# 39. Hosting公開確認
+
+## 確認内容
+
+- form送信
+- Firestore保存
+- history表示
+- Hosting表示
+
+を確認。
+
+---
+
+# 40. キャッシュ問題
+
+## 発生内容
+
+Hosting後も：
+
+```txt
+Firebase 初期ページ
+```
+
+が表示された。
+
+---
+
+## 原因
+
+```txt
+ブラウザキャッシュ
+```
+
+が古い内容を保持していた。
+
+---
+
+## 解決
+
+```txt
+Shift + Command + R
+```
+
+による：
+
+```txt
+スーパーリロード
+```
+
+を実施。
+
+---
+
+# 41. スーパーリロードの理解
+
+## 通常リロード
+
+```txt
+Command + R
+```
+
+↓
+
+```txt
+キャッシュ利用可能性あり
+```
+
+---
+
+## スーパーリロード
+
+```txt
+Shift + Command + R
+```
+
+↓
+
+```txt
+キャッシュを極力無視して再取得
+```
+
+---
+
+## 使用タイミング
+
+- Hosting直後
+- deploy後
+- CSS変更
+- JS変更
+- 「変更が反映されない」時
+
+---
+
+# 42. Firebase Hosting 完了
+
+## 到達した状態
+
+```txt
+ローカル開発
+↓
+Firestore
+↓
+Hosting
+↓
+インターネット公開
+```
+
+まで到達。
+
+---
+
+# 43. 現在できること
+
+## Firebase
+
+```txt
+Firestore保存
+Firestore取得
+Rules制御
+Hosting
+```
+
+---
+
+## JavaScript
+
+```txt
+非同期処理
+モジュール分割
+export/import
+DOM操作
+```
+
+---
+
+## 開発フロー
+
+```txt
+build
+deploy
+Hosting確認
+Console確認
+```
+
+---
+
+# 44. 今回特に重要だった点
+
+## 理解したこと
+
+```txt
+教材 = 最低限構成
+```
+
+であり、
+
+```txt
+実際に使うなら
+UX
+入力制御
+安全性
+```
+
+がさらに必要になる。
+
+---
+
+# 45. UX視点の理解
+
+## 例
+
+送信後：
+
+```txt
+入力欄が残る
+```
+
+↓
+
+```txt
+送信失敗した？
+```
+
+と感じた。
+
+---
+
+## 改善
+
+```js
+e.target.reset();
+```
+
+追加。
+
+---
+
+## 理解したこと
+
+```txt
+ユーザーは画面変化で成功失敗を判断する
+```
+
+---
+
+# 46. 現時点での全体理解
+
+## 現在のアプリ構成
+
+```txt
+HTML
+↓
+JavaScript
+↓
+Firestore
+↓
+DOM表示
+↓
+Firebase Hosting
+```
+
+---
+
+# 47. 現在の到達点
+
+## 学習内容
+
+```txt
+Vite
+Firebase
+Firestore
+Hosting
+Rules
+.env
+CRUD（Create / Read）
+build
+deploy
+モジュール分割
+```
+
+---
+
+# 次回以降
+
+- バリデーション
+- UX改善
+- 認証
+- update/delete
+- 実用向けRules
+- GitHub公開整理
